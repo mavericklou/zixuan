@@ -1,0 +1,68 @@
+<html>
+  <head>
+    <!-- <meta http-equiv="content-type" content="text/html; charset=UTF-8"> -->
+    <meta http-equiv="refresh" content="60" >
+    
+    <style type="text/css">
+      .stock {               }
+    </style>
+    
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <script type="text/javascript">
+    
+    var url_template = "http://image2.sinajs.cn/newchart/min/xxxxxxxx.gif"
+    
+    var stock_hashmap = new Object()
+    stock_hashmap['stock_1'] = "sh000001"
+    stock_hashmap['stock_2'] = "sz399001"
+    stock_hashmap['stock_3'] = "sz300050"
+    stock_hashmap['stock_4'] = "sz000760"
+    stock_hashmap['stock_5'] = "sz000622"
+    stock_hashmap['stock_6'] = "sz002563"
+    stock_hashmap['stock_7'] = "sz002424"
+    stock_hashmap['stock_8'] = "sh601668"
+    stock_hashmap['stock_9'] = "sh600833"
+    stock_hashmap['stock_10'] = "sz002102"
+    
+    
+    
+    function createImg(e) {
+    	element = document.getElementById(e.srcElement.id)
+    	element.src = url_template.replace(/xxxxxxxx/, stock_hashmap[element.id])
+    }
+    
+    function switchImg(e) {
+        element = document.getElementById(e.srcElement.id)
+        if (element.src.match("min")) {
+        	element.src = element.src.replace(/min/, "daily")
+        } else {
+        	element.src = element.src.replace(/daily/, "min")
+        }
+	}
+
+
+    </script>
+    
+  </head>
+  
+  
+  
+  <body onLoad="">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-4" style="min-height: 273px;" ><img frameborder=0 scrolling=no src="foo.jpg" id="stock_1" onError="createImg.call(this, event)" onClick="switchImg.call(this, event)"></div>
+        <div class="col-md-4" style="min-height: 273px;" ><img frameborder=0 scrolling=no src="foo.jpg" id="stock_2" onError="createImg.call(this, event)" onClick="switchImg.call(this, event)"></div>
+        <div class="col-md-4" style="min-height: 273px;" ><img frameborder=0 scrolling=no src="foo.jpg" id="stock_3" onError="createImg.call(this, event)" onClick="switchImg.call(this, event)"></div>
+        <div class="col-md-4" style="min-height: 273px;" ><img frameborder=0 scrolling=no src="foo.jpg" id="stock_4" onError="createImg.call(this, event)" onClick="switchImg.call(this, event)"></div>
+        <div class="col-md-4" style="min-height: 273px;" ><img frameborder=0 scrolling=no src="foo.jpg" id="stock_5" onError="createImg.call(this, event)" onClick="switchImg.call(this, event)"></div>
+        <div class="col-md-4" style="min-height: 273px;" ><img frameborder=0 scrolling=no src="foo.jpg" id="stock_6" onError="createImg.call(this, event)" onClick="switchImg.call(this, event)"></div>
+        <div class="col-md-4" style="min-height: 273px;" ><img frameborder=0 scrolling=no src="foo.jpg" id="stock_7" onError="createImg.call(this, event)" onClick="switchImg.call(this, event)"></div>
+        <div class="col-md-4" style="min-height: 273px;" ><img frameborder=0 scrolling=no src="foo.jpg" id="stock_8" onError="createImg.call(this, event)" onClick="switchImg.call(this, event)"></div>
+        <div class="col-md-4" style="min-height: 273px;" ><img frameborder=0 scrolling=no src="foo.jpg" id="stock_9" onError="createImg.call(this, event)" onClick="switchImg.call(this, event)"></div>
+        <div class="col-md-4" style="min-height: 273px;" ><img frameborder=0 scrolling=no src="foo.jpg" id="stock_10" onError="createImg.call(this, event)" onClick="switchImg.call(this, event)"></div>
+     </div>
+   </div>  
+  </body>
+  
+  
+</html>

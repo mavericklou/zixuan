@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Stocks</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <style type="text/css" media="screen">
+      .stock {
+        min-height: 273px;
+        padding: 0;
+      }
+      .stock:hover {
+        background-color: rgba(222, 222, 222, 0.4);
+      }
+      .stock img {
+        margin: 0 auto;
+        display: none;
+        cursor: pointer;
+      }
+      .stock.min img.min {
+        display: block;
+        -webkit-filter: grayscale(100%);
+        -moz-filter: grayscale(100%);
+        -ms-filter: grayscale(100%);
+        -o-filter: grayscale(100%);
+        
+        filter: grayscale(100%);
+    	
+        filter: gray;
+      }
+      .stock.day img.day {
+        display: block;
+        -webkit-filter: grayscale(100%);
+        -moz-filter: grayscale(100%);
+        -ms-filter: grayscale(100%);
+        -o-filter: grayscale(100%);
+        
+        filter: grayscale(100%);
+    	
+        filter: gray;
+      }
+
+      .timer {
+        position: fixed;
+        height: 2px;
+        background-color: blue;
+        width: 0;
+      }
+      .timer.running {
+        width: 100%;
+        background-color: red;
+        transition: width 60.0s linear, background-color 60.0s ease-in !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <!--<div class="row">
+        <div class="timer"></div>
+      </div>-->
+      <div class="row stocks"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-1.11.1.min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" charset="utf-8">
+      var StockApp = function() { this.initialize(); };
+      StockApp.prototype = {
+        BASE_IMAGE_URL: "http://image2.sinajs.cn/newchart",
+        BASE_STOCK_IDS: [
+          "sh000001", "sz399001", "sz300050",
+          "sz000760", "sz000622", "sz002563",
+          "sz002424", "sh601668", "sh600833"
+        ],
+
+        initialize: function() {
+          this.$stocks = $('.stocks');
+          this.$timer = $('.timer');
+          this.registerEvents();
+          this.populateStocks();
+        },
+
+        registerEvents: function() { var self = this;
+          $(window).on('hashchange', function() {
+            self.populateStocks();
+          });
+
+          this.$stocks.on('click', '.stock', function() {
+            $(this).toggleClass('min day');
+          });
+
+          setInterval(function() {
+            self.refreshStockImages();
+          }, 60 * 1000);
+        },
+
+        populateStocks: function() {
+          var stockIdsHash = window.location.hash.replace(/^#/, "").trim(),
+              stockIds = stockIdsHash.length == 0 ? this.BASE_STOCK_IDS : stockIdsHash.split(/\s*,\s*/);
+
+          this.addStocks(stockIds);
+          this.resetTimer();
+        },
+
+        addStocks: function(stockIds) { var self = this;
+          this.$stocks.html('');
+          stockIds.forEach(function(stockId) {
+            self.addStock(stockId);
+          });
+        },
+
+        addStock: function(stockId) {
+          var $stockDiv = $('<div class="col-md-4 col-sm-6 stock min"></div>'),
+              $stockMin = $('<img class="min" title="点击切换到日K线"  src="' + this.BASE_IMAGE_URL + '/min/'   + stockId + '.gif"/>'),
+              $stockDay = $('<img class="day" title="点击切换到实时线" src="' + this.BASE_IMAGE_URL + '/daily/' + stockId + '.gif"/>');
+
+          this.$stocks.append($stockDiv.append($stockMin)
+                                       .append($stockDay));
+        },
+
+        refreshStockImages: function() {
+          $('.stock img').each(function(i, img) {
+            var $img = $(img);
+                src = $img.attr('src').replace(/\?.*$/, '');
+
+            $img.attr('src', src + '?timestamp=' + Date.now());
+          });
+
+          this.resetTimer();
+        },
+
+        resetTimer: function() { var self = this;
+          this.$timer.removeClass('running');
+          setTimeout(function() {
+            self.$timer.addClass('running');
+          }, 50);
+        }
+      };
+
+      var app = new StockApp();
+    </script>
+  </body>
+</html>
