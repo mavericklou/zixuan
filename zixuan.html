@@ -24,24 +24,10 @@
         display: block;
       }
 
-      .timer {
-        position: fixed;
-        height: 2px;
-        background-color: blue;
-        width: 0;
-      }
-      .timer.running {
-        width: 100%;
-        background-color: red;
-        transition: width 60.0s linear, background-color 60.0s ease-in !important;
-      }
     </style>
   </head>
   <body>
     <div class="container-fluid">
-      <!--<div class="row">
-        <div class="timer"></div>
-      </div>-->
       <div class="row stocks"></div>
     </div>
 
@@ -58,7 +44,6 @@
 
         initialize: function() {
           this.$stocks = $('.stocks');
-          this.$timer = $('.timer');
           this.registerEvents();
           this.populateStocks();
         },
@@ -82,10 +67,10 @@
               stockIds = stockIdsHash.length == 0 ? this.BASE_STOCK_IDS : stockIdsHash.split(/\s*,\s*/);
 
           this.addStocks(stockIds);
-          this.resetTimer();
         },
 
-        addStocks: function(stockIds) { var self = this;
+        addStocks: function(stockIds) {
+          var self = this;
           this.$stocks.html('');
           stockIds.forEach(function(stockId) {
             self.addStock(stockId);
@@ -109,15 +94,8 @@
             $img.attr('src', src + '?timestamp=' + Date.now());
           });
 
-          this.resetTimer();
-        },
-
-        resetTimer: function() { var self = this;
-          this.$timer.removeClass('running');
-          setTimeout(function() {
-            self.$timer.addClass('running');
-          }, 50);
         }
+
       };
 
       var app = new StockApp();
