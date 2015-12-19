@@ -21,7 +21,7 @@ curl -s http://global.lotte.com/goods/viewGoodsDetail.lotte?goods_no=$PRODUCT_ID
 
 cat $HTML_FILE | /root/work/bin/pup 'div#price_div span:not([class]) text{}' > $CURR
 cat $HTML_FILE | /root/work/bin/pup 'div[class="prd-buy"] table[class="line-type table_delivery"] td:contains("g") text{}' >> $CURR
-cat $HTML_FILE | /root/work/bin/pup 'div[class="opt_sel"] text{}' >> $CURR
+cat $HTML_FILE | /root/work/bin/pup 'div[class="opt_sel"] text{}' | sed -e 's/^[ \t]*//' | sed '/^$/d' >> $CURR
 
 if [ ! -f $PREV ]; then
   cp $CURR $PREV
