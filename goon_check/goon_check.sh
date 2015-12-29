@@ -17,6 +17,12 @@ HTML_FILE=$WORK_DIR/$PRODUCT_ID.html
 PREV=$WORK_DIR/$PRODUCT_ID.prev
 CURR=$WORK_DIR/$PRODUCT_ID.curr
 
+CORPID=`cat $WORK_DIR/corpid`
+CORPSECRET=`cat $WORK_DIR/corpsecret`
+
+# update delivery fee table
+curl -s -X POST -d cntry_sct_cd=CN -d frgn_dlv_co_sct_cd=01 http://global.lotte.com/cart/searchDeliverInfoListAjax.lotte | /usr/bin/jq . > $WORK_DIR/lotte_china_ems.fee
+
 curl -s http://global.lotte.com/goods/viewGoodsDetail.lotte?goods_no=$PRODUCT_ID > $HTML_FILE
 
 cat $HTML_FILE | /root/work/bin/pup 'div#price_div span:not([class]) text{}' > $CURR
@@ -29,8 +35,10 @@ fi
 
 if [ `md5sum $PREV | cut -f1 -d' '` != `md5sum $CURR | cut -f1 -d' '` ]; then
   echo "changed"
+  cat $CURR
+  ACCESS_TOKEN=`curl -s --form-string "corpid=$CORPID" --form-string "corpsecret=$CORPSECRET" https://qyapi.weixin.qq.com/cgi-bin/gettoken | cut -c18-103`
+  curl -X POST -d '{"touser":"@all","agentid":1,"msgtype":"text","text":{"content":"'"`cat $CURR`"'"}}' 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token='"$ACCESS_TOKEN"
   cp $CURR $PREV
-  cat $PREV
   curl -s --form-string "token=adtpBkJFPSucfK2zfRo3cco2vgk9tB" --form-string "user=uiqs7S7VrF4onLHSeKwH2qKv1B4HcE" --form-string "message=`cat $PREV`" https://api.pushover.net/1/messages.json
 else
   echo "not changed"
