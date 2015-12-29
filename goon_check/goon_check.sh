@@ -16,6 +16,7 @@ WORK_DIR=/root/code/zixuan/goon_check
 HTML_FILE=$WORK_DIR/$PRODUCT_ID.html
 PREV=$WORK_DIR/$PRODUCT_ID.prev
 CURR=$WORK_DIR/$PRODUCT_ID.curr
+MESSAGE_FILE=$WORK_DIR/$PRODUCT_ID.massage
 
 CORPID=`cat $WORK_DIR/corpid`
 CORPSECRET=`cat $WORK_DIR/corpsecret`
@@ -33,13 +34,22 @@ if [ ! -f $PREV ]; then
   cp $CURR $PREV
 fi
 
+date +"%Y-%m-%d %H:%M:%S" > $MESSAGE_FILE
+cat $CURR >> $MESSAGE_FILE
+
+function send_message()
+{
+  ACCESS_TOKEN=`curl -s --form-string "corpid=$CORPID" --form-string "corpsecret=$CORPSECRET" https://qyapi.weixin.qq.com/cgi-bin/gettoken | cut -c18-103`
+  curl -X POST -d '{"touser":"@all","agentid":1,"msgtype":"text","text":{"content":"'"`cat $MESSAGE_FILE`"'"}}' 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token='"$ACCESS_TOKEN"
+  cp $CURR $PREV
+  curl -s --form-string "token=adtpBkJFPSucfK2zfRo3cco2vgk9tB" --form-string "user=uiqs7S7VrF4onLHSeKwH2qKv1B4HcE" --form-string "message=`cat $MESSAGE_FILE`" https://api.pushover.net/1/messages.json
+}
+
+
 if [ `md5sum $PREV | cut -f1 -d' '` != `md5sum $CURR | cut -f1 -d' '` ]; then
   echo "changed"
   cat $CURR
-  ACCESS_TOKEN=`curl -s --form-string "corpid=$CORPID" --form-string "corpsecret=$CORPSECRET" https://qyapi.weixin.qq.com/cgi-bin/gettoken | cut -c18-103`
-  curl -X POST -d '{"touser":"@all","agentid":1,"msgtype":"text","text":{"content":"'"`cat $CURR`"'"}}' 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token='"$ACCESS_TOKEN"
-  cp $CURR $PREV
-  curl -s --form-string "token=adtpBkJFPSucfK2zfRo3cco2vgk9tB" --form-string "user=uiqs7S7VrF4onLHSeKwH2qKv1B4HcE" --form-string "message=`cat $PREV`" https://api.pushover.net/1/messages.json
+  send_message
 else
   echo "not changed"
 fi
