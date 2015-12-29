@@ -50,6 +50,16 @@ if [ `md5sum $PREV | cut -f1 -d' '` != `md5sum $CURR | cut -f1 -d' '` ]; then
   echo "changed"
   cat $CURR
   send_message
+  if [ `cat $CURR | grep -c "XL"` -ne 0 ] ; then
+    send_message
+    send_message
+    send_message
+    send_message
+  fi
 else
   echo "not changed"
+  if [ `cat $CURR | grep -c "XL"` -ne 0 ] ; then
+    cat $CURR
+    send_message
+  fi
 fi
