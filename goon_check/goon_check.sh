@@ -16,10 +16,7 @@ WORK_DIR=/root/code/zixuan/goon_check
 HTML_FILE=$WORK_DIR/$PRODUCT_ID.html
 PREV=$WORK_DIR/$PRODUCT_ID.prev
 CURR=$WORK_DIR/$PRODUCT_ID.curr
-MESSAGE_FILE=$WORK_DIR/$PRODUCT_ID.massage
-
-CORPID=`cat $WORK_DIR/corpid`
-CORPSECRET=`cat $WORK_DIR/corpsecret`
+MESSAGE_FILE=$WORK_DIR/$PRODUCT_ID.message
 
 
 ##### functions for weight and delivery fee #####
@@ -56,31 +53,23 @@ fi
 date +"%Y-%m-%d %H:%M:%S" > $MESSAGE_FILE
 cat $CURR >> $MESSAGE_FILE
 
-function send_message()
-{
-  ACCESS_TOKEN=`curl -s --form-string "corpid=$CORPID" --form-string "corpsecret=$CORPSECRET" https://qyapi.weixin.qq.com/cgi-bin/gettoken | cut -c18-103`
-  curl -X POST -d '{"touser":"@all","agentid":1,"msgtype":"text","text":{"content":"'"`cat $MESSAGE_FILE`"'"}}' 'https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token='"$ACCESS_TOKEN"
-  curl -s --form-string "token=adtpBkJFPSucfK2zfRo3cco2vgk9tB" --form-string "user=uiqs7S7VrF4onLHSeKwH2qKv1B4HcE" --form-string "message=`cat $MESSAGE_FILE`" https://api.pushover.net/1/messages.json
-}
-
-
 if [ `md5sum $PREV | cut -f1 -d' '` != `md5sum $CURR | cut -f1 -d' '` ]; then
   echo "changed"
   cat $CURR
-  send_message
+  $WORK_DIR/send_notification.sh $MESSAGE_FILE
   if [ `cat $CURR | grep -c "XL"` -ne 0 ] ; then
     echo "Hey, XL is in stock!" > $MESSAGE_FILE
-    send_message
-    send_message
-    send_message
-    send_message
+    $WORK_DIR/send_notification.sh $MESSAGE_FILE
+    $WORK_DIR/send_notification.sh $MESSAGE_FILE
+    $WORK_DIR/send_notification.sh $MESSAGE_FILE
+    $WORK_DIR/send_notification.sh $MESSAGE_FILE
   fi
   cp $CURR $PREV
 else
   echo "not changed"
   if [ `cat $CURR | grep -c "XL"` -ne 0 ] ; then
     cat $CURR
-    send_message
+    $WORK_DIR/send_notification.sh $MESSAGE_FILE
   fi
 fi
 
@@ -101,6 +90,6 @@ if [ `md5sum $WORK_DIR/lotte_china_ems_fee.prev  | cut -f1 -d' '` != `md5sum $WO
   echo "now      for 15kg `get_delivery_fee_for 15000`krw" >> $MESSAGE_FILE
   echo "previous for 20kg `get_delivery_fee_for 20000`krw" >> $MESSAGE_FILE
   echo "now      for 20kg `get_delivery_fee_for 20000`krw" >> $MESSAGE_FILE
-  send_message
+  $WORK_DIR/send_notification.sh $MESSAGE_FILE
   cp $WORK_DIR/lotte_china_ems_fee.curr $WORK_DIR/lotte_china_ems_fee.prev
 fi
