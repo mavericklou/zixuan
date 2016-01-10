@@ -21,6 +21,28 @@ MESSAGE_FILE=$WORK_DIR/$PRODUCT_ID.massage
 CORPID=`cat $WORK_DIR/corpid`
 CORPSECRET=`cat $WORK_DIR/corpsecret`
 
+
+##### functions for weight and delivery fee #####
+##curl -s -X POST -d cntry_sct_cd=CN -d frgn_dlv_co_sct_cd=01 http://global.lotte.com/cart/searchDeliverInfoListAjax.lotte | /usr/bin/jq . > $WORK_DIR/lotte_china_ems_fee.curr
+##
+##function get_weight_floor()
+##{
+##  weight=$((((( $1 - 1) / 500) + 1) * 500))
+##}
+##
+##get_weight_floor 16500
+##echo $weight
+##
+##function get_delivery_fee_for()
+##{
+##  cat lotte_china_ems_fee.curr | /usr/bin/jq '.[] | select(.STD_WGT_VAL == '"$1"') | .DLEX'
+##}
+##
+##delivery_fee=`get_delivery_fee_for 15000`
+
+
+
+
 curl -s http://global.lotte.com/goods/viewGoodsDetail.lotte?goods_no=$PRODUCT_ID > $HTML_FILE
 
 cat $HTML_FILE | /root/work/bin/pup 'div#price_div span:not([class]) text{}' > $CURR
@@ -47,6 +69,7 @@ if [ `md5sum $PREV | cut -f1 -d' '` != `md5sum $CURR | cut -f1 -d' '` ]; then
   cat $CURR
   send_message
   if [ `cat $CURR | grep -c "XL"` -ne 0 ] ; then
+    echo "Hey, XL is in stock!" > $MESSAGE_FILE
     send_message
     send_message
     send_message
@@ -65,7 +88,6 @@ fi
 
 
 ## notification for delivery fee table changes
-curl -s -X POST -d cntry_sct_cd=CN -d frgn_dlv_co_sct_cd=01 http://global.lotte.com/cart/searchDeliverInfoListAjax.lotte | /usr/bin/jq . > $WORK_DIR/lotte_china_ems_fee.curr
 if [ ! -f $WORK_DIR/lotte_china_ems_fee.prev ]; then
   cp $WORK_DIR/lotte_china_ems_fee.curr $WORK_DIR/lotte_china_ems_fee.prev
 fi
@@ -73,12 +95,12 @@ fi
 if [ `md5sum $WORK_DIR/lotte_china_ems_fee.prev  | cut -f1 -d' '` != `md5sum $WORK_DIR/lotte_china_ems_fee.curr | cut -f1 -d' '` ]; then
   date +"%Y-%m-%d %H:%M:%S" > $MESSAGE_FILE
   echo "delivery fee changed" >> $MESSAGE_FILE
-  echo "previous for 10kg `cat lotte_china_ems_fee.prev | /usr/bin/jq '.[] | select(.STD_WGT_VAL == 10000) | .DLEX'`krw" >> $MESSAGE_FILE
-  echo "now      for 10kg `cat lotte_china_ems_fee.prev | /usr/bin/jq '.[] | select(.STD_WGT_VAL == 10000) | .DLEX'`krw" >> $MESSAGE_FILE
-  echo "previous for 15kg `cat lotte_china_ems_fee.prev | /usr/bin/jq '.[] | select(.STD_WGT_VAL == 15000) | .DLEX'`krw" >> $MESSAGE_FILE
-  echo "now      for 15kg `cat lotte_china_ems_fee.prev | /usr/bin/jq '.[] | select(.STD_WGT_VAL == 15000) | .DLEX'`krw" >> $MESSAGE_FILE
-  echo "previous for 20kg `cat lotte_china_ems_fee.prev | /usr/bin/jq '.[] | select(.STD_WGT_VAL == 20000) | .DLEX'`krw" >> $MESSAGE_FILE
-  echo "now      for 20kg `cat lotte_china_ems_fee.prev | /usr/bin/jq '.[] | select(.STD_WGT_VAL == 20000) | .DLEX'`krw" >> $MESSAGE_FILE
+  echo "previous for 10kg `get_delivery_fee_for 10000`krw" >> $MESSAGE_FILE
+  echo "now      for 10kg `get_delivery_fee_for 10000`krw" >> $MESSAGE_FILE
+  echo "previous for 15kg `get_delivery_fee_for 15000`krw" >> $MESSAGE_FILE
+  echo "now      for 15kg `get_delivery_fee_for 15000`krw" >> $MESSAGE_FILE
+  echo "previous for 20kg `get_delivery_fee_for 20000`krw" >> $MESSAGE_FILE
+  echo "now      for 20kg `get_delivery_fee_for 20000`krw" >> $MESSAGE_FILE
   send_message
   cp $WORK_DIR/lotte_china_ems_fee.curr $WORK_DIR/lotte_china_ems_fee.prev
 fi
